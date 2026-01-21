@@ -1,0 +1,217 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:SimpleWebBrowserDemo.ViewModels"
+        xmlns:converters="using:SimpleWebBrowserDemo.Converters"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="SimpleWebBrowserDemo.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="{Binding PageTitle}"
+        Width="1200" Height="800"
+        MinWidth="800" MinHeight="600">
+
+    <Design.DataContext>
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+    <Window.Resources>
+        <converters:DateTimeConverter x:Key="DateTimeConverter"/>
+    </Window.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0" 
+                Background="{DynamicResource SystemChromeMediumColor}"
+                Padding="8"
+                BorderBrush="{DynamicResource SystemChromeLowColor}"
+                BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                    <Button Command="{Binding BackCommand}" 
+                            IsEnabled="{Binding CanGoBack}"
+                            ToolTip.Tip="后退">
+                        <Path Data="M10 20l-8-8 8-8v16z" 
+                                  Width="16" Height="16" 
+                                  Fill="{DynamicResource SystemAccentColor}"/>
+                    </Button>
+                    <Button Command="{Binding ForwardCommand}" 
+                            IsEnabled="{Binding CanGoForward}"
+                            ToolTip.Tip="前进">
+                        <Path Data="M6 4l8 8-8 8V4z" 
+                                  Width="16" Height="16" 
+                                  Fill="{DynamicResource SystemAccentColor}"/>
+                    </Button>
+                    <Button Command="{Binding RefreshCommand}" 
+                            ToolTip.Tip="刷新">
+                        <Path Data="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" 
+                                  Width="16" Height="16" 
+                                  Fill="{DynamicResource SystemAccentColor}"/>
+                    </Button>
+                    <Button Command="{Binding HomeCommand}" 
+                            ToolTip.Tip="主页">
+                        <Path Data="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" 
+                                  Width="16" Height="16" 
+                                  Fill="{DynamicResource SystemAccentColor}"/>
+                    </Button>
+                </StackPanel>
+
+                <Border Grid.Column="1" 
+                        Margin="8,0"
+                        Background="{DynamicResource SystemChromeLowColor}"
+                        CornerRadius="4"
+                        Padding="8,4">
+                    <Grid>
+                        <TextBox Text="{Binding CurrentUrl}" 
+                                 Watermark="输入网址或搜索关键词..."
+                                 VerticalAlignment="Center"
+                                 FontSize="14">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding GoCommand}"/>
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                        <Button Command="{Binding GoCommand}" 
+                                HorizontalAlignment="Right"
+                                Width="80"
+                                Margin="4,0,0,0"
+                                Content="前往"/>
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                    <Button Command="{Binding ShowHistoryCommand}" 
+                            ToolTip.Tip="历史记录">
+                        <TextBlock Text="历史"/>
+                    </Button>
+                    <Button Command="{Binding ShowBookmarksCommand}" 
+                            ToolTip.Tip="书签">
+                        <TextBlock Text="书签"/>
+                    </Button>
+                    <Button Command="{Binding ShowSettingsCommand}" 
+                            ToolTip.Tip="设置">
+                        <TextBlock Text="设置"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid RowDefinitions="Auto,*">
+            <Border Grid.Row="0" 
+                    Background="{DynamicResource SystemChromeMediumColor}"
+                    Padding="8"
+                    BorderBrush="{DynamicResource SystemChromeLowColor}"
+                    BorderThickness="0,0,1,0"
+                    IsVisible="{Binding ShowHistoryPanel}"
+                    MaxHeight="300">
+                <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="浏览历史" FontWeight="Bold" FontSize="16"/>
+                        <Button Grid.Column="1" Command="{Binding ShowHistoryCommand}" Content="×" Width="30"/>
+                    </Grid>
+                    <ListBox ItemsSource="{Binding BrowsingHistory}"
+                              SelectedItem="{Binding SelectedHistoryItem}"
+                              DoubleTapped="OnHistoryItemDoubleTapped">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding VisitTime, Converter={StaticResource DateTimeConverter}}"
+                                               Opacity="0.7"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="0" 
+                    Background="{DynamicResource SystemChromeMediumColor}"
+                    Padding="8"
+                    BorderBrush="{DynamicResource SystemChromeLowColor}"
+                    BorderThickness="0,0,1,0"
+                    IsVisible="{Binding ShowBookmarksPanel}"
+                    MaxHeight="300">
+                <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="书签" FontWeight="Bold" FontSize="16"/>
+                        <Button Grid.Column="1" Command="{Binding ShowBookmarksCommand}" Content="×" Width="30"/>
+                    </Grid>
+                    <ListBox ItemsSource="{Binding Bookmarks}"
+                              SelectedItem="{Binding SelectedBookmarkItem}"
+                              DoubleTapped="OnBookmarkItemDoubleTapped">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Url}" Opacity="0.7"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="0" 
+                    Background="{DynamicResource SystemChromeMediumColor}"
+                    Padding="8"
+                    BorderBrush="{DynamicResource SystemChromeLowColor}"
+                    BorderThickness="0,0,1,0"
+                    IsVisible="{Binding ShowSettingsPanel}"
+                    MaxHeight="300">
+                <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" Text="设置" FontWeight="Bold" FontSize="16"/>
+                        <Button Grid.Column="1" Command="{Binding ShowSettingsCommand}" Content="×" Width="30"/>
+                    </Grid>
+                    <ScrollViewer>
+                        <StackPanel Spacing="16" Margin="8">
+                            <TextBlock Text="主页设置" FontWeight="SemiBold"/>
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                                <TextBox Text="{Binding HomePage}" Watermark="主页 URL"/>
+                                <Button Command="{Binding SaveHomePageCommand}" Content="保存" Width="80"/>
+                            </Grid>
+                            
+                            <TextBlock Text="搜索引擎" FontWeight="SemiBold"/>
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                                <TextBox Text="{Binding SearchEngine}" Watermark="搜索引擎 URL"/>
+                                <Button Command="{Binding SaveSearchEngineCommand}" Content="保存" Width="80"/>
+                            </Grid>
+                            
+                            <TextBlock Text="主题" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
+                                <RadioButton Content="浅色" GroupName="Theme" IsChecked="{Binding IsLightTheme}"/>
+                                <RadioButton Content="深色" GroupName="Theme" IsChecked="{Binding IsDarkTheme}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" 
+                    Background="{DynamicResource SystemChromeLowColor}">
+                <Grid>
+                    <ScrollViewer x:Name="ContentScrollViewer"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="PageContent"
+                                   TextWrapping="Wrap"
+                                   FontFamily="Consolas, monospace"
+                                   FontSize="14"
+                                   Padding="10"
+                                   Foreground="{DynamicResource SystemChromeHighColor}"/>
+                    </ScrollViewer>
+                    
+                    <StackPanel HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               Spacing="16"
+                               IsVisible="{Binding IsLoading}">
+                        <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>
+                        <TextBlock Text="正在加载页面..." 
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SystemChromeDisabledLowColor}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+
+</Window>
